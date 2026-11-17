@@ -167,8 +167,8 @@ h3{font-size:13px;margin:14px 0 6px}
   <div class="result" id="stats"></div>
   <div id="warnings"></div>
   <div class="card"><h2>Checks</h2><div class="scroll"><table id="checks"></table></div></div>
-  <div class="card"><h2>All sizes at selected runs</h2><div class="scroll"><table id="sizes"></table></div>
-    <p class="muted">The highlighted row is the selected cable. I<sub>z</sub> is the derated rating per run × number of runs.</p></div>
+  <div class="card"><h2>Nearby sizes</h2><div class="scroll"><table id="sizes"></table></div>
+    <p class="muted">The highlighted row is the selected cable. I<sub>z</sub> is the derated rating per run × number of runs. <a href="#" id="allSizes">Show all sizes</a></p></div>
   <div class="card"><h2>Basis</h2><div id="basis" class="muted"></div></div>
 </div>
 </div>
@@ -569,7 +569,14 @@ function render(){
  } else ch+='<tr><td colspan="4">No result</td></tr>';
  $('checks').innerHTML=ch+'</tbody>';
  // sizes table
- const R=o.rows||[]; const hasSC=p.sc&&p.If>0, hasL=R.some(r=>r.Lmax!==undefined);
+ const RA=(o.rows||[]).filter(r=>!r.na); let R=RA;
+ if(!window._showAll&&RA.length>5){
+  let i=s?RA.findIndex(r=>r.size===s.size&&r.n===s.n):-1;
+  if(i<0){i=RA.findIndex(r=>r.okI); if(i<0)i=RA.length-1;}
+  const a=Math.max(0,Math.min(i-2,RA.length-5)); R=RA.slice(a,a+5);
+ }
+ $('allSizes').textContent=window._showAll?'Show nearby sizes only':'Show all sizes';
+ const hasSC=p.sc&&p.If>0, hasL=R.some(r=>r.Lmax!==undefined);
  let t=`<thead><tr><th class="n">Size mm²</th><th class="n">I<sub>tab</sub> A</th><th class="n">I<sub>z</sub> A</th><th class="n">V<sub>d</sub> %</th>${hasSC?'<th>SC</th>':''}${R.some(r=>r.pe)?'<th class="n">Earth mm²</th>':''}${hasL?'<th class="n">L<sub>max</sub> m</th>':''}<th>Result</th></tr></thead><tbody>`;
  R.forEach(r=>{
   const sel=s&&r.size===s.size&&r.n===s.n;
@@ -649,6 +656,7 @@ function init(){
  $('ctype').addEventListener('change',()=>{fillSizes();fillInst();render();});
  $('mat').addEventListener('change',()=>{fillCableTypes();fillSizes();fillInst();render();});
  document.querySelectorAll('#tab-calc input,#tab-calc select').forEach(e=>{if(!['preset','volt','phase','ctype','mat'].includes(e.id))e.addEventListener('input',render);});
+ $('allSizes').addEventListener('click',e=>{e.preventDefault();window._showAll=!window._showAll;render();});
  $('reset').addEventListener('click',()=>{try{localStorage.removeItem('ssCable')}catch(e){} location.reload();});
  $('copyRep').addEventListener('click',async()=>{
   const txt=window._last?.text||'';
