@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SS Cable Size Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ss-blue:#003DA5;--ss-blue-80:#3364B7;--ss-blue-50:#809ED2;--ss-blue-20:#CCD8ED;
+  --ss-grey:#8A8D8F;--ss-grey-80:#A1A4A5;--ss-grey-50:#C5C6C7;--ss-grey-20:#E8E8E9;
+  --ss-text:#3D3D3D;--bg:#FFFFFF;--surface:#F6F7F8;--card:#FFFFFF;--line:#C5C6C7;
+  --pass:#1E7B34;--pass-bg:#E3F2E6;--fail:#B3261E;--fail-bg:#FBE7E6;--warn:#8A5A00;--warn-bg:#FFF3D6;
+  --head:"Michroma","Avenir Next",sans-serif;
+  --body:"Avenir Next","Avenir","Nunito Sans","Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0A1F44;--surface:#0A1F44;--card:#12305F;--ss-text:#E8E8E9;--line:#3364B7;--ss-blue-20:#1B3F78;--ss-grey-20:#16376B;
+  --pass:#7FD48F;--pass-bg:#173F2A;--fail:#FF9A92;--fail-bg:#4A1D1D;--warn:#FFD27A;--warn-bg:#4A3A12;}
+  h2,.card h2{color:#FFFFFF!important}
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--body);color:var(--ss-text);background:var(--surface);font-size:14px;line-height:1.45}
+header{background:var(--ss-blue);color:#fff;padding:18px 28px;display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+header .logo svg{width:190px;height:auto;display:block}
+header h1{font-family:var(--head);font-weight:400;text-transform:uppercase;letter-spacing:.04em;font-size:20px;margin:0;color:#fff}
+header p{margin:2px 0 0;color:var(--ss-blue-20);font-size:13px}
+@media (prefers-color-scheme:dark){header p{color:#CCD8ED}}
+nav.tabs{display:flex;gap:4px;padding:0 28px;background:var(--ss-blue);}
+nav.tabs button{font-family:var(--head);text-transform:uppercase;font-size:11px;letter-spacing:.05em;background:transparent;color:#CCD8ED;border:0;padding:10px 16px;cursor:pointer;border-bottom:3px solid transparent}
+nav.tabs button.on{color:#fff;border-bottom-color:#fff}
+main{padding:20px 28px 40px;max-width:1500px;margin:0 auto}
+.grid{display:grid;grid-template-columns:minmax(340px,520px) 1fr;gap:20px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:14px 16px;margin-bottom:14px}
+.card h2{font-family:var(--head);font-weight:400;text-transform:uppercase;font-size:12px;letter-spacing:.06em;color:var(--ss-blue);margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.row{display:grid;grid-template-columns:1fr 170px;gap:8px;align-items:center;margin:6px 0}
+.row label{font-size:13px}
+.row .hint{display:block;font-size:11px;color:var(--ss-grey)}
+input,select{font-family:var(--body);font-size:13px;padding:5px 7px;border:1px solid var(--ss-grey-50);border-radius:3px;width:100%;background:var(--card);color:var(--ss-text)}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--ss-blue)}
+.pair{display:grid;grid-template-columns:1fr 70px;gap:4px}
+.sub{border-left:3px solid var(--ss-blue-20);padding-left:10px;margin:6px 0 2px}
+.hidden{display:none!important}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+button.b{font-family:var(--head);text-transform:uppercase;font-size:11px;letter-spacing:.05em;background:var(--ss-blue);color:#fff;border:0;border-radius:3px;padding:9px 14px;cursor:pointer}
+button.b.alt{background:var(--ss-grey)}
+.result{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:12px}
+.stat{background:var(--ss-blue);color:#fff;border-radius:4px;padding:12px 14px}
+.stat .k{font-family:var(--head);text-transform:uppercase;font-size:10px;letter-spacing:.06em;color:#CCD8ED}
+.stat .v{font-size:22px;font-weight:700;margin-top:4px}
+.stat .u{font-size:12px;color:#CCD8ED}
+.stat.grey{background:var(--ss-grey)}
+.stat.grey .k,.stat.grey .u{color:#fff}
+.stat.fail{background:var(--fail)}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th{background:var(--ss-blue);color:#fff;font-weight:600;text-align:left;padding:6px 8px;border:1px solid var(--ss-grey-50);white-space:nowrap}
+td{padding:5px 8px;border:1px solid var(--ss-grey-50)}
+tbody tr:nth-child(even) td{background:var(--ss-grey-20)}
+td.n,th.n{text-align:right}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px}
+.tag.p{background:var(--pass-bg);color:var(--pass)}
+.tag.f{background:var(--fail-bg);color:var(--fail)}
+.tag.w{background:var(--warn-bg);color:var(--warn)}
+tr.sel td{outline:2px solid var(--ss-blue);background:var(--ss-blue-20)!important}
+.note{font-size:12px;color:var(--ss-text);background:var(--warn-bg);border-left:3px solid var(--warn);padding:8px 10px;margin:8px 0;border-radius:2px}
+.muted{color:var(--ss-grey);font-size:12px}
+ul.tight{margin:4px 0;padding-left:18px} ul.tight li{margin:2px 0}
+.scroll{overflow-x:auto}
+footer{text-align:center;color:var(--ss-grey);font-size:12px;padding:16px;border-top:1px solid var(--line)}
+textarea{width:100%;height:240px;font-family:Consolas,monospace;font-size:12px}
+h3{font-size:13px;margin:14px 0 6px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 375.7 80" style="enable-background:new 0 0 375.7 80;" xml:space="preserve">  <style type="text/css">	.st0{fill:#FFFFFF;}	.st1{fill:#FFFFFF;}</style>  <g>	<g>		<path class="st0" d="M99.8,37.4c-3-1.3-3.5-2.1-3.5-3.1c0-1.4,1.1-2.2,2.9-2.2c1.5,0,3.2,0.8,4.2,1.5l0.7,0.5l1.7-4.7l-0.4-0.3    c-1.3-0.8-3.5-1.8-6.1-1.8c-5.3,0-8.1,3.5-8.1,7c0,3.2,1.8,5.4,5.8,7c3.6,1.5,3.9,2.4,3.9,3.5c0,1.5-1,2.3-2.8,2.3    c-1.8,0-3.8-0.7-5.5-2l-0.7-0.5l-1.8,4.8l0.4,0.3c2.3,1.5,5,2.3,7.5,2.3c5.3,0,8.1-3.7,8.1-7.4C106,41.3,104.4,39.4,99.8,37.4z"></path>		<rect x="116.9" y="27.8" class="st0" width="5.2" height="24"></rect>		<polygon class="st0" points="139.5,27.8 134.3,27.8 134.3,51.8 149.4,51.8 149.4,47 139.5,47   "></polygon>		<polygon class="st0" points="166.3,41.9 160.3,27.8 154.4,27.8 165.5,52 165.5,52.2 166.9,52.2 177.9,27.8 172.2,27.8   "></polygon>		<polygon class="st0" points="187.1,51.8 202.2,51.8 202.2,47 192.2,47 192.2,42 201.3,42 201.3,37.3 192.2,37.3 192.2,32.7     202.2,32.7 202.2,27.8 187.1,27.8   "></polygon>		<path class="st0" d="M230.4,35.5c0-4.9-3.7-7.8-9.9-7.8c-2,0-3.9,0.1-6.1,0.4l-0.6,0.1v23.7h5.2v-8.2c0.8,0,1.7,0.1,2.5,0l4.9,8.2    h6.1l-6.2-9.5C228.9,40.9,230.4,38.4,230.4,35.5z M225.1,35.7c0,2.3-1.5,3.5-4.4,3.5c-0.6,0-1.1,0-1.6-0.1v-6.6    c0.6-0.1,1.3-0.1,2-0.1C223.5,32.4,225.1,33.7,225.1,35.7z"></path>		<path class="st0" d="M249.9,37.4c-3-1.3-3.5-2.1-3.5-3.1c0-1.4,1.1-2.2,2.9-2.2c1.5,0,3.2,0.8,4.2,1.5l0.7,0.5l1.7-4.7l-0.4-0.3    c-1.3-0.8-3.5-1.8-6.1-1.8c-5.3,0-8.1,3.5-8.1,7c0,3.2,1.8,5.4,5.8,7c3.6,1.5,3.9,2.4,3.9,3.5c0,1.5-1,2.3-2.8,2.3    c-1.8,0-3.8-0.7-5.5-2l-0.7-0.5l-1.8,4.8l0.4,0.3c2.3,1.5,5,2.3,7.5,2.3c5.3,0,8.1-3.7,8.1-7.4C256,41.3,254.4,39.4,249.9,37.4z"></path>		<polygon class="st0" points="265.1,32.7 272.3,32.7 272.3,51.8 277.5,51.8 277.5,32.7 284.7,32.7 284.7,27.8 265.1,27.8   "></polygon>		<path class="st0" d="M305.2,27.5c-7,0-12.2,5.3-12.2,12.4c0,7.2,5.1,12.4,12,12.4c7,0,12.2-5.3,12.2-12.4    C317.2,32.7,312.1,27.5,305.2,27.5z M311.7,39.9c0,4.4-2.8,7.6-6.7,7.6c-3.9,0-6.7-3.2-6.7-7.6c0-4.4,2.8-7.6,6.7-7.6    C308.9,32.2,311.7,35.4,311.7,39.9z"></path>		<polygon class="st0" points="343.1,41.2 329.9,27.3 328.4,27.6 328.4,51.8 333.6,51.8 333.6,38.3 347,52.3 348.3,52.1 348.3,27.8     343.1,27.8   "></polygon>		<polygon class="st0" points="375.4,32.7 375.4,27.8 360.3,27.8 360.3,51.8 375.4,51.8 375.4,47 365.5,47 365.5,42 374.5,42     374.5,37.3 365.5,37.3 365.5,32.7   "></polygon>	</g>	<polygon class="st1" points="64.3,37 26.5,37 33.8,29.7 38.2,34.1 46.8,34.1 33.8,21.1 17.9,37 11.9,37 33.8,15.1 52.8,34.1    61.4,34.1 33.8,6.5 0.3,40 3.3,43.1 41,43.1 33.8,50.3 29.4,45.9 20.8,45.9 33.8,58.9 49.7,43.1 55.6,43.1 33.8,64.9 14.8,45.9    6.2,45.9 33.8,73.5 67.3,40  "></polygon></g></svg></div>
+  <div>
+    <h1>CABLE SIZE CALCULATOR</h1>
+    <p>Current rating, voltage drop, short circuit, earth fault loop and earth sizing: 24 V DC to 11 kV, to the AS/NZS 3008 / AS/NZS 3000 method</p>
+  </div>
+</header>
+<nav class="tabs">
+  <button class="on" data-tab="calc">Calculator</button>
+  <button data-tab="data">Cable data</button>
+  <button data-tab="method">Method &amp; notes</button>
+</nav>
+<main>
+<section id="tab-calc">
+<div class="grid">
+<div>
+  <div class="card">
+    <h2>01 Circuit</h2>
+    <div class="row"><label>Preset</label>
+      <select id="preset">
+        <option value="lv415">415 V AC 3-phase</option>
+        <option value="lv1000">1000 V AC 3-phase</option>
+        <option value="lv240">240 V AC 1-phase</option>
+        <option value="mv11">11 kV AC 3-phase</option>
+        <option value="dc24">24 V DC</option>
+        <option value="custom">Custom</option>
+      </select></div>
+    <div class="row"><label>System</label>
+      <select id="phase"><option value="3">3-phase AC</option><option value="1">1-phase AC</option><option value="dc">DC (2-wire)</option></select></div>
+    <div class="row"><label>Voltage<span class="hint">Line-line for 3-phase</span></label>
+      <div class="pair"><input id="volt" type="number" step="any" value="415"><span style="align-self:center">V</span></div></div>
+    <div class="row"><label>Load</label>
+      <div class="pair"><input id="load" type="number" step="any" value="250"><select id="loadUnit"><option>A</option><option>kW</option><option>kVA</option></select></div></div>
+    <div class="row acOnly" id="pfRow"><label>Power factor</label><input id="pf" type="number" step="0.01" min="0.1" max="1" value="0.8"></div>
+    <div class="row"><label>Route length<span class="hint">One way</span></label>
+      <div class="pair"><input id="len" type="number" step="any" value="100"><span style="align-self:center">m</span></div></div>
+    <div class="row acOnly"><label>Voltage drop method<span class="hint">Single-core and 11 kV cables</span></label>
+      <select id="vdm"><option value="z">Impedance Zc (conservative)</option><option value="pf">R·cosφ + X·sinφ</option></select></div>
+    <div class="row"><label>Max. voltage drop</label>
+      <div class="pair"><input id="vdMax" type="number" step="0.1" value="5"><span style="align-self:center">%</span></div></div>
+  </div>
+
+  <div class="card">
+    <h2>02 Cable</h2>
+    <div class="row"><label>Cable type</label><select id="ctype"></select></div>
+    <div class="row"><label>Conductor</label><select disabled><option>Copper</option></select></div>
+    <div class="row"><label>Active size</label><select id="sizeSel"></select></div>
+    <div class="row"><label>Parallel runs</label>
+      <select id="par"><option value="auto">Auto</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>8</option></select></div>
+    <div class="row" id="maxSizeRow"><label>Largest size per run<span class="hint">Auto parallels above this size</span></label><select id="maxSize"></select></div>
+    <div class="row lvAcOnly"><label>Earth conductor</label><select id="earthSel"></select></div>
+  </div>
+
+  <div class="card">
+    <h2>03 Installation &amp; derating</h2>
+    <div class="row"><label>Installation</label><select id="inst"></select></div>
+    <div class="row" id="coverRow"><label>Covered-tray factor<span class="hint">Only for cables with no enclosed rating column</span></label><input id="coverF" type="number" step="0.01" value="0.80"></div>
+    <div class="row airOnly"><label>Ambient air temp.<span class="hint">Reference 40 °C</span></label>
+      <div class="pair"><input id="tAir" type="number" step="any" value="40"><span style="align-self:center">°C</span></div></div>
+    <div class="row gndOnly"><label>Ground temp.<span class="hint">Reference 25 °C</span></label>
+      <div class="pair"><input id="tGnd" type="number" step="any" value="25"><span style="align-self:center">°C</span></div></div>
+    <div class="row"><label>Grouping factor<span class="hint">From AS/NZS 3008 grouping tables</span></label><input id="kGrp" type="number" step="0.01" value="1.00"></div>
+    <div class="row gndOnly"><label>Soil / depth factor<span class="hint">Thermal resistivity and depth</span></label><input id="kSoil" type="number" step="0.01" value="1.00"></div>
+    <div class="row"><label>Other factor<span class="hint">E.g. thermal insulation, harmonics</span></label><input id="kOth" type="number" step="0.01" value="1.00"></div>
+  </div>
+
+  <div class="card">
+    <h2>04 Protection &amp; fault</h2>
+    <div class="row"><label>Protective device rating I<sub>n</sub><span class="hint">Optional: requires I<sub>z</sub> ≥ I<sub>n</sub></span></label>
+      <div class="pair"><input id="inProt" type="number" step="any" placeholder="—"><span style="align-self:center">A</span></div></div>
+    <div class="row"><label>Check short circuit rating</label><input id="chkSC" type="checkbox" checked></div>
+    <div class="sub" id="scBox">
+      <div class="row"><label>Prospective fault current</label><div class="pair"><input id="ifk" type="number" step="any" value="25"><span style="align-self:center">kA</span></div></div>
+      <div class="row"><label>Clearing time</label><div class="pair"><input id="tcl" type="number" step="any" value="0.2"><span style="align-self:center">s</span></div></div>
+      <div class="row"><label>Earth fault current<span class="hint">LV: earth conductor. 11 kV: screen.</span></label><div class="pair"><input id="iefk" type="number" step="any" value="25"><span style="align-self:center">kA</span></div></div>
+    </div>
+    <div class="row lvAcOnly"><label>Check loop impedance</label><input id="chkLoop" type="checkbox" checked></div>
+    <div class="sub lvAcOnly" id="loopBox">
+      <div class="row"><label>Device trip current I<sub>a</sub><span class="hint">Current for operation within the disconnection time</span></label><div class="pair"><input id="ia" type="number" step="any" value="2500"><span style="align-self:center">A</span></div></div>
+    </div>
+  </div>
+  <div class="btns">
+    <button class="b alt" id="reset">Reset</button>
+    <button class="b" id="copyRep">Copy calc report</button>
+  </div>
+  <div id="copyMsg" class="muted" style="margin-top:6px"></div>
+  <textarea id="repBox" class="hidden" readonly></textarea>
+</div>
+
+<div>
+  <div class="result" id="stats"></div>
+  <div id="warnings"></div>
+  <div class="card"><h2>Checks</h2><div class="scroll"><table id="checks"></table></div></div>
+  <div class="card"><h2>All sizes at selected runs</h2><div class="scroll"><table id="sizes"></table></div>
+    <p class="muted">The highlighted row is the selected cable. I<sub>z</sub> is the derated rating per run × number of runs.</p></div>
+  <div class="card"><h2>Basis</h2><div id="basis" class="muted"></div></div>
+</div>
+</div>
+</section>
+
+<section id="tab-data" class="hidden">
+  <div class="card"><h2>Cable data in use</h2>
+  <p>LV single-core ratings, resistance, reactance and K come from the AS/NZS 3008.1.1 tables you supplied: Tables 3.13, 3.14, 4.5(A), 4.1(A), 5.1 and 5.2, with earth sizes from AS/NZS 3000 Table 5.1. LV multicore and flexible SDI ratings come from manufacturer data based on AS/NZS 3008.1.1. 11 kV ratings come from the Prysmian MV guide. The manufacturer data will be replaced as more AS/NZS 3008 tables are supplied.</p>
+  <div id="dataTables"></div></div>
+</section>
+
+<section id="tab-method" class="hidden">
+  <div class="card"><h2>Method</h2>
+  <h3>1. Design current</h3>
+  <p>3-phase: I = P / (√3·V·pf), or S / (√3·V). 1-phase and DC: I = P / (V·pf), or S / V. With parallel runs, each run carries I / n (assumes identical cables of equal length).</p>
+  <h3>2. Current rating</h3>
+  <p>I<sub>z</sub> = I<sub>tab</sub> × k<sub>temp</sub> × k<sub>group</sub> × k<sub>soil</sub> × k<sub>other</sub> × n. The temperature factor is k<sub>temp</sub> = √((θ<sub>max</sub> − θ) / (θ<sub>max</sub> − θ<sub>ref</sub>)), with θ<sub>max</sub> = 90 °C (X-90 / XLPE), θ<sub>ref</sub> = 40 °C in air and 25 °C in ground. Pass if I<sub>z</sub> ≥ I<sub>b</sub>, and also I<sub>z</sub> ≥ I<sub>n</sub> when a device rating is entered (AS/NZS 3000 cl. 2.5.3).</p>
+  <h3>3. Voltage drop</h3>
+  <ul class="tight">
+  <li>LV single-core (AS/NZS 3008 data): the operating temperature is estimated as θ<sub>o</sub> = θ<sub>a</sub> + (θ<sub>max</sub> − θ<sub>a</sub>)(I<sub>run</sub>/I<sub>z,run</sub>)². R is interpolated at θ<sub>o</sub> from Table 4.5(A). X comes from Table 4.1(A): trefoil, or flat for the touching and spaced installations; XLPE for X-90 and elastomer for 110 °C cables. Then V<sub>d</sub> = √3 (3-phase) or 2 (1-phase/DC) × I<sub>run</sub> × L × Z<sub>c</sub> / 1000, where Z<sub>c</sub> = √(R² + X²) (conservative) or R·cosφ + X·sinφ.</li>
+  <li>LV multicore (manufacturer data), 3-phase: V<sub>d</sub> = V<sub>c</sub> × I<sub>run</sub> × L / 1000, using the tabled 3-phase V<sub>c</sub> (mV/A·m at 90 °C, which is conservative). LV AC 1-phase: V<sub>c</sub> × 1.155.</li>
+  <li>11 kV: V<sub>d</sub> = √3 × I<sub>run</sub> × L × Z<sub>c</sub> / 1000, using R<sub>ac,90</sub> and X.</li>
+  <li>DC: V<sub>d</sub> = 2 × I<sub>run</sub> × L × R<sub>θ</sub> / 1000, where R<sub>θ</sub> = R<sub>20</sub>(1 + 0.00393(θ − 20)) and the operating temperature is estimated as θ = θ<sub>a</sub> + (90 − θ<sub>a</sub>)(I<sub>run</sub>/I<sub>z,run</sub>)².</li></ul>
+  <h3>4. Short circuit (adiabatic)</h3>
+  <p>S<sub>min</sub> = I<sub>f</sub>·√t / K. K comes from AS/NZS 3008.1.1 Table 5.1 (copper, final temperature 250 °C for X-90 and cross-linked elastomers per Table 5.2), interpolated at an initial temperature equal to the estimated operating temperature θ<sub>o</sub>. Parallel runs are assumed to share the fault current (n·S ≥ S<sub>min</sub>). For 11 kV the manufacturer's 1 s conductor and screen ratings are scaled by 1/√t.</p>
+  <h3>5. Earth conductor</h3>
+  <p>The minimum earth size comes from AS/NZS 3000 Table 5.1: actives of 400–630 mm² take ≥ 120 mm², and actives above 630 mm² take ≥ 25 % of the active size. The earth is then checked adiabatically against the earth fault current, using the same K as the actives.</p>
+  <h3>6. Earth fault loop impedance (LV AC)</h3>
+  <p>Maximum length by the AS/NZS 3000 Appendix B simplified method: L<sub>max</sub> = 0.8·U<sub>o</sub>·S<sub>ph</sub>·S<sub>pe</sub> / (I<sub>a</sub>·ρ·(S<sub>ph</sub> + S<sub>pe</sub>)), where ρ = 22.5×10⁻³ Ω·mm²/m (copper) and U<sub>o</sub> is the phase-to-earth voltage. Parallel runs use n·S. For generator-supplied circuits the 0.8 source factor may not hold, so check the generator's fault contribution separately.</p>
+  <h3>Limitations</h3>
+  <ul class="tight">
+  <li>Copper conductors only. Aluminium columns are available in Tables 3.13 and 3.14 but aren't loaded.</li><li>LV multicore cables still use manufacturer ratings and tabled V<sub>c</sub> until AS/NZS 3008 Table 3.4 (multicore XLPE) and the multicore impedance tables are supplied.</li>
+  <li>Grouping, soil resistivity and depth factors are entered manually until the AS/NZS 3008 derating tables are loaded.</li>
+  <li>2-core and DC circuits use the 3/4-core multicore ratings (two loaded conductors would rate slightly higher, so this is conservative).</li>
+  <li>Cable types with no "enclosed" column (flexible cables and 11 kV) are rated for a lidded tray as the touching or free-air rating × the covered-tray factor. The default 0.80 is the enclosed/touching ratio seen in the LV multicore data. Replace it with the AS/NZS 3008 value.</li>
+  <li>The 11 kV ratings are taken from Prysmian's tables. Their rating conditions aren't stated in the extract used and are assumed to be the AS/NZS 3008.1.2 reference conditions (40 °C air, 25 °C ground). Confirm these.</li>
+  <li>Not covered: harmonic derating, motor starting voltage drop, cyclic ratings or solar exposure (except the LV multicore "exposed to sun" column).</li></ul>
+  </div>
+</section>
+</main>
+<footer>Silverstone · 08 6365 5416 · info@sstone.com.au · sstone.com.au · Engineering aid only. Verify against AS/NZS 3008.1.1/1.2 and AS/NZS 3000 before issue.</footer>
+
+<script>
+// ---------- Cable data ----------
+const R20_C2={1:18.1,1.5:12.1,2.5:7.41,4:4.61,6:3.08,10:1.83,16:1.15,25:0.727,35:0.524,50:0.387,70:0.268,95:0.193,120:0.153,150:0.124,185:0.0991,240:0.0754,300:0.0601,400:0.047,500:0.0366,630:0.0283};
+const R20_C5={1:19.5,1.5:13.3,2.5:7.98,4:4.95,6:3.30,10:1.91,16:1.21,25:0.78,35:0.554,50:0.386,70:0.272,95:0.206,120:0.161,150:0.129,185:0.106,240:0.0801,300:0.0641,400:0.0486,500:0.0384,630:0.0287};
+// AS/NZS 3000 Table 5.1: minimum Cu earthing conductor (Cu actives). 400-630: ≥120; >630: ≥25 % of active
+const EARTH_T51={1:1,1.5:1.5,2.5:2.5,4:2.5,6:2.5,10:4,16:6,25:6,35:10,50:16,70:25,95:25,120:35,150:50,185:70,240:95,300:120,400:120,500:120,630:120};
+const STD_EARTH_SIZES=[1,1.5,2.5,4,6,10,16,25,35,50,70,95,120,150,185,240,300,400,500,630];
+function earthMin(a){ if(EARTH_T51[a])return EARTH_T51[a]; const m=a*0.25; return STD_EARTH_SIZES.find(z=>z>=m)||null; }
+// AS/NZS 3008.1.1 Table 4.5(A): a.c. resistance, single-core Cu, Ω/km at 25,30,45,60,75,80,90,110 °C
+const RT=[25,30,45,60,75,80,90,110];
+const RAC={1:[21.6,22.0,23.3,24.5,25.8,26.2,27.0,28.7],1.5:[13.9,14.1,14.9,15.7,16.5,16.8,17.3,18.4],2.5:[7.56,7.70,8.14,8.57,9.01,9.16,9.45,10.0],
+4:[4.70,4.79,5.06,5.33,5.61,5.70,5.88,6.24],6:[3.14,3.20,3.38,3.56,3.75,3.81,3.93,4.17],10:[1.87,1.90,2.01,2.12,2.23,2.26,2.33,2.48],
+16:[1.17,1.20,1.26,1.33,1.40,1.42,1.47,1.56],25:[0.742,0.756,0.799,0.842,0.884,0.899,0.927,0.984],35:[0.535,0.545,0.576,0.607,0.638,0.648,0.668,0.710],
+50:[0.395,0.403,0.426,0.448,0.471,0.479,0.494,0.524],70:[0.274,0.279,0.295,0.311,0.327,0.332,0.342,0.363],95:[0.198,0.202,0.213,0.225,0.236,0.240,0.247,0.262],
+120:[0.158,0.161,0.170,0.179,0.188,0.191,0.197,0.208],150:[0.129,0.131,0.138,0.145,0.153,0.155,0.160,0.169],185:[0.104,0.106,0.111,0.117,0.123,0.125,0.129,0.136],
+240:[0.0805,0.0819,0.0862,0.0905,0.0948,0.0962,0.0991,0.105],300:[0.0658,0.0669,0.0703,0.0736,0.0770,0.0781,0.0803,0.0849],
+400:[0.0536,0.0544,0.0569,0.0595,0.0620,0.0629,0.0646,0.0681],500:[0.0442,0.0448,0.0467,0.0487,0.0506,0.0512,0.0525,0.0551],
+630:[0.0371,0.0375,0.0389,0.0404,0.0418,0.0423,0.0432,0.0452]};
+// AS/NZS 3008.1.1 Table 4.1(A): reactance single-core, Ω/km [trefoil: elast, PVC, XLPE | flat touching: elast, PVC, XLPE]
+const XC={1:[.173,.168,.166,.188,.184,.181],1.5:[.161,.157,.155,.177,.172,.170],2.5:[.147,.143,.141,.162,.159,.156],4:[.137,.137,.131,.152,.152,.146],
+6:[.128,.128,.123,.143,.143,.138],10:[.118,.118,.114,.134,.134,.129],16:[.111,.111,.106,.126,.126,.122],25:[.106,.106,.102,.121,.121,.118],
+35:[.101,.101,.0982,.117,.117,.113],50:[.0962,.0962,.0924,.111,.111,.108],70:[.0917,.0917,.0893,.107,.107,.104],95:[.0904,.0904,.0868,.106,.106,.102],
+120:[.0870,.0870,.0844,.102,.102,.0996],150:[.0868,.0868,.0844,.102,.102,.0996],185:[.0862,.0862,.0835,.101,.101,.0988],240:[.0847,.0847,.0818,.0999,.0999,.0970],
+300:[.0839,.0839,.0809,.0991,.0991,.0961],400:[.0829,.0829,.0802,.0982,.0982,.0955],500:[.0820,.0820,.0796,.0973,.0973,.0948],630:[.0800,.0800,.0787,.0952,.0952,.0940]};
+// AS/NZS 3008.1.1 Table 5.1: K, copper, final 250 °C (X-90 / cross-linked elastomer per Table 5.2), by initial temp
+const KT_I=[25,30,35,40,45,50,55,60,65,70,75,80,85,90,110,125,130];
+const KT_250=[178.3,175.6,172.8,170.1,167.4,164.7,161.9,159.2,156.5,153.8,151.1,148.3,145.6,142.9,131.8,123.3,120.4];
+function interp(xs,ys,x){ if(x<=xs[0])return ys[0]; if(x>=xs[xs.length-1])return ys[ys.length-1];
+ for(let i=1;i<xs.length;i++)if(x<=xs[i]){const f=(x-xs[i-1])/(xs[i]-xs[i-1]);return ys[i-1]+f*(ys[i]-ys[i-1]);} }
+const K250=ti=>interp(KT_I,KT_250,ti);
+const RacAt=(s,t)=>RAC[s]?interp(RT,RAC[s],t):null;
+
+const CABLES={
+ lv_mc:{cls:'lv',name:'LV X-90 multicore, rigid (2C/3C/4C ± E)',src:'Prysmian XLPE multicore datasheet "Current ratings 3 & 4 core (Cu) 90 °C" (based on AS/NZS 3008.1.1)',r20:R20_C2,
+  sizes:[1,1.5,2.5,4,6,10,16,25,35,50,70,95,120,150,185,240,300,400,500],
+  cols:{spaced:[16,20,28,38,48,66,88,119,147,180,229,283,330,377,436,517,594,685,779],
+   touching:[14,19,26,35,45,62,83,111,137,168,213,263,306,350,404,479,549,632,718],
+   sun:[13,16,23,30,39,53,70,94,115,140,177,217,251,285,327,385,439,502,566],
+   enclosed:[13,16,24,30,38,53,68,91,114,136,173,209,246,277,322,386,null,null,null],
+   buried:[16,20,29,37,46,63,110,143,172,204,251,302,344,385,435,504,567,640,714],
+   duct:[16,20,29,37,46,63,81,107,130,155,193,233,270,304,348,411,463,524,601]},
+  vc:[46.8,30.0,16.4,10.2,6.80,4.05,2.55,1.61,1.17,0.868,0.609,0.450,0.366,0.307,0.259,0.216,0.190,0.171,0.158]},
+ lv_sc:{cls:'lv',std:true,tmax:90,xcol:'xlpe',name:'LV X-90 single core (3 × 1C), AS/NZS 3008 Table 3.13',src:'AS/NZS 3008.1.1 Table 3.13 (Cu), with R from Table 4.5(A), X from Table 4.1(A) and K from Table 5.1',
+  sizes:[0.5,0.75,1,1.5,2.5,4,6,10,16,25,35,50,70,95,120,150,185,240,300,400,500,630],
+  cols:{spaced:[14,17,19,25,35,46,59,81,108,146,180,221,282,350,410,472,550,660,766,899,1051,1230],
+   spacedSurf:[12,15,16,21,30,40,50,69,92,125,154,188,240,298,349,403,468,560,648,756,874,1010],
+   touching:[11,14,16,20,28,37,47,65,86,117,144,176,224,278,325,375,435,521,602,702,812,938],
+   sun:[9,11,12,15,21,28,36,48,64,86,105,127,160,197,229,262,302,358,410,474,544,621],
+   enclosed:[10,13,15,18,25,33,42,56,72,97,120,143,183,220,261,295,335,399,469,534,633,714],
+   buried:[18,22,24,31,42,55,68,91,117,151,180,214,262,313,356,400,452,523,589,668,752,843],
+   duct:[13,16,18,22,31,40,50,67,86,113,137,163,203,244,284,320,363,426,491,557,648,727],
+   duct3:[16,20,22,27,38,49,60,79,101,132,158,190,232,276,320,358,413,477,552,626,707,820]}},
+ lv_sc110:{cls:'lv',std:true,tmax:110,xcol:'elast',name:'LV 110 °C single core (R-E-110 / R-HF-110 / X-HF-110), e.g. flexible EPR generator tails, AS/NZS 3008 Table 3.14',src:'AS/NZS 3008.1.1 Table 3.14 (Cu), with R from Table 4.5(A), X from Table 4.1(A) (elastomer) and K from Table 5.1',
+  sizes:[0.5,0.75,1,1.5,2.5,4,6,10,16,25,35,50,70,95,120,150,185,240,300,400,500,630],
+  cols:{spaced:[16,21,23,29,41,55,70,96,128,173,214,262,335,416,487,561,653,784,910,1069,1250,1464],
+   spacedSurf:[14,18,20,25,36,47,60,82,110,149,183,224,286,356,416,480,558,667,773,902,1046,1210],
+   touching:[13,17,18,24,34,44,56,77,103,139,171,210,267,332,387,447,519,621,719,839,972,1125],
+   sun:[11,14,16,20,29,38,48,65,86,116,142,174,220,272,317,364,422,502,579,673,776,893],
+   enclosed:[12,15,17,21,30,39,50,67,88,119,149,179,231,282,334,379,434,524,621,714,859,979],
+   buried:[19,24,27,34,47,61,76,101,130,167,200,237,290,348,396,444,502,582,656,744,840,944],
+   duct:[14,18,20,25,35,44,56,75,96,126,154,183,229,275,320,360,408,480,553,628,732,823],
+   duct3:[18,22,24,30,42,54,67,88,113,148,176,212,259,309,358,400,462,534,618,702,793,921]}},
+ lv_fsc:{cls:'lv',name:'LV flexible X-90 single core (SDI, Class 5), e.g. generator tails',src:'Prysmian flexible XLPE/PVC (SDI) X-90 datasheet (based on AS/NZS 3008.1.1). Column mapping read from datasheet, so verify it.',r20:R20_C5,
+  sizes:[25,35,50,70,95,120,150,185,240,300,400,500,630],
+  cols:{spaced:[121,151,191,241,290,346,400,459,553,637,764,884,1030],
+   touching:[114,141,178,225,271,322,372,427,514,591,709,821,956],
+   buried:[151,180,214,262,313,356,400,452,523,589,668,752,843],
+   duct:[109,134,163,203,237,279,316,357,416,479,554,642,729]},
+  vc:[1.73,1.24,0.869,0.622,0.483,0.388,0.325,0.280,0.233,0.207,0.183,0.169,0.157]},
+ lv_fmc:{cls:'lv',name:'LV flexible X-90 multicore (Class 5, 3C/4C + E)',src:'Prysmian XLPE/PVC multicore X-90 flexible datasheet (based on AS/NZS 3008.1.1)',r20:R20_C5,
+  sizes:[10,16,25,35,50,70,95],
+  cols:{spaced:[66,87,116,144,182,230,275],touching:[61,81,108,135,170,214,256],buried:[63,110,143,172,204,251,302],duct:[62,79,103,127,155,193,226]},
+  vc:[4.22,2.68,1.73,1.23,0.866,0.618,0.477]},
+ mv1hd:{cls:'mv',name:'11 kV XLPE 1C Cu, heavy-duty screen (3 × 1C trefoil)',src:'Prysmian Australia MV Guide V1 (2025), 1CCUX11HD',
+  sizes:[25,35,50,70,95,120,150,185,240,300,400,500,630],
+  cols:{air:[145,180,215,270,320,370,420,480,560,640,735,835,950],buried:[145,175,205,250,295,335,370,415,475,530,595,665,735],duct:[145,170,195,235,270,300,330,365,410,450,495,545,600]},
+  rac:[0.927,0.668,0.494,0.342,0.247,0.196,0.159,0.128,0.0980,0.0790,0.0630,0.0507,0.0413],
+  x:[0.150,0.147,0.140,0.131,0.123,0.118,0.114,0.110,0.107,0.104,0.101,0.0974,0.0948],
+  ka:[3.6,5.0,7.2,10.0,13.6,17.2,21.5,26.5,34.3,42.9,57.2,71.5,90.1],
+  scr:[3.5,5.0,7.1,10,10,10,10,10,10,10,10,10,10]},
+ mv1ld:{cls:'mv',name:'11 kV XLPE 1C Cu, light-duty screen (3 × 1C trefoil)',src:'Prysmian Australia MV Guide V1 (2025), 1CCUX11LD',
+  sizes:[25,35,50,70,95,120,150,185,240,300,400,500,630],
+  cols:{air:[145,175,210,265,320,370,420,480,570,650,755,870,995],buried:[145,175,205,250,300,335,375,425,490,550,620,700,780],duct:[145,170,200,245,285,325,360,400,460,515,575,645,720]},
+  rac:[0.927,0.668,0.494,0.342,0.247,0.196,0.159,0.128,0.0981,0.0791,0.0632,0.0509,0.0415],
+  x:[0.150,0.143,0.137,0.126,0.120,0.115,0.112,0.108,0.104,0.101,0.0985,0.0955,0.0930],
+  ka:[3.6,5.0,7.2,10.0,13.6,17.2,21.5,26.5,34.3,42.9,57.2,71.5,90.1],
+  scr:[3,3,3,3,3,3,3,3,3,3,3,3,3]},
+ mv3hd:{cls:'mv',name:'11 kV XLPE 3C Cu, heavy-duty screen',src:'Prysmian Australia MV Guide V1 (2025), 3CCUX11HD. The 300 mm² free-air rating is printed as 290 A (likely a typo) and is used as printed.',
+  sizes:[25,35,50,70,95,120,150,185,240,300],
+  cols:{air:[135,165,195,245,295,345,385,440,520,290],buried:[135,165,195,245,290,330,370,410,475,530],duct:[120,145,170,205,245,280,310,350,410,460]},
+  rac:[0.927,0.668,0.494,0.342,0.247,0.196,0.159,0.128,0.0984,0.0796],
+  x:[0.130,0.125,0.119,0.110,0.105,0.100,0.0973,0.0942,0.0910,0.0885],
+  ka:[3.6,5.0,7.2,10.0,13.6,17.2,21.5,26.5,34.3,42.9],
+  scr:[3.5,5.1,7.1,10,10,10,10,10,10,10]},
+ mv3ld:{cls:'mv',name:'11 kV XLPE 3C Cu, light-duty screen',src:'Prysmian Australia MV Guide V1 (2025), 3CCUX11LD',
+  sizes:[25,35,50,70,95,120,150,185,240,300],
+  cols:{air:[135,160,190,235,285,330,380,435,510,580],buried:[140,165,195,235,280,325,365,410,475,530],duct:[120,145,170,205,240,280,310,350,405,455]},
+  rac:[0.927,0.668,0.494,0.342,0.247,0.196,0.159,0.128,0.0984,0.0796],
+  x:[0.130,0.125,0.119,0.110,0.105,0.100,0.0973,0.0942,0.0910,0.0885],
+  ka:[3.6,5.0,7.2,10.0,13.6,17.2,21.5,26.5,34.3,42.9],
+  scr:[3.0,3.0,3.0,3.3,3.5,3.8,4.0,4.3,4.6,5.1]}
+};
+const INST={
+ tray_lid:{name:'Cable tray with lid (enclosed)',env:'air'},
+ tray_open:{name:'Open tray / ladder, cables touching',env:'air'},
+ spaced:{name:'Unenclosed, spaced',env:'air'},
+ spacedSurf:{name:'Unenclosed, trefoil spaced from surface',env:'air'},
+ sun:{name:'Unenclosed, exposed to direct sun',env:'air'},
+ buried:{name:'Buried direct',env:'gnd'},
+ duct:{name:'Underground conduit (circuit in one conduit)',env:'gnd'},
+ duct3:{name:'Underground conduits (one core per conduit)',env:'gnd'}
+};
+// reactance arrangement per installation (single-core): flat for touching/spaced, trefoil otherwise
+const X_FLAT={tray_open:true,spaced:true};
+// map installation -> {col, factor?}
+function colFor(c,inst){
+ const has=k=>c.cols[k]!==undefined;
+ if(c.cls==='mv'){
+  if(inst==='tray_lid')return{col:'air',cover:true,desc:'free-air rating × covered-tray factor'};
+  if(inst==='tray_open'||inst==='spaced')return{col:'air',desc:'free-air rating (unenclosed, spaced from wall)'};
+  if(inst==='sun'||inst==='spacedSurf'||inst==='duct3')return null;
+  return{col:inst,desc:inst==='buried'?'direct-buried rating':'single-way duct rating'};
+ }
+ if(inst==='tray_lid'){return has('enclosed')?{col:'enclosed',desc:'enclosed (wiring enclosure in air) rating'}:{col:'touching',cover:true,desc:'unenclosed touching rating × covered-tray factor'};}
+ if(inst==='tray_open')return{col:'touching',desc:'unenclosed touching rating'};
+ if(inst==='spaced')return has('spaced')?{col:'spaced',desc:'unenclosed spaced rating'}:{col:'touching',desc:'unenclosed touching rating (no spaced column, so conservative)'};
+ if(inst==='sun')return has('sun')?{col:'sun',desc:'exposed-to-sun rating'}:null;
+ if(inst==='spacedSurf')return has('spacedSurf')?{col:'spacedSurf',desc:'trefoil spaced-from-surface rating'}:null;
+ if(inst==='buried')return{col:'buried',desc:'buried direct rating'};
+ if(inst==='duct')return{col:'duct',desc:'underground wiring enclosure rating'};
+ if(inst==='duct3')return has('duct3')?{col:'duct3',desc:'single cores in separate underground conduits rating'}:null;
+}
+const PRESETS={lv415:['3',415],lv1000:['3',1000],lv240:['1',240],mv11:['3',11000],dc24:['dc',24]};
+const $=id=>document.getElementById(id);
+const fmt=(v,d=1)=>(v===null||v===undefined||!isFinite(v))?'—':Number(v).toLocaleString('en-AU',{minimumFractionDigits:d,maximumFractionDigits:d});
+const K_CU=(ti,tf)=>226*Math.sqrt(Math.log((tf+234.5)/(ti+234.5)));
+
+function isMV(){return +$('volt').value>1000}
+function fillCableTypes(){
+ const mv=isMV(), cur=$('ctype').value;
+ const keys=Object.keys(CABLES).filter(k=>(CABLES[k].cls==='mv')===mv);
+ $('ctype').innerHTML=keys.map(k=>`<option value="${k}">${CABLES[k].name}</option>`).join('');
+ if(keys.includes(cur))$('ctype').value=cur;
+}
+function fillSizes(){
+ const c=CABLES[$('ctype').value]; const s=$('sizeSel').value, m=$('maxSize').value;
+ $('sizeSel').innerHTML='<option value="auto">Auto</option>'+c.sizes.map(z=>`<option value="${z}">${z} mm²</option>`).join('');
+ $('maxSize').innerHTML=c.sizes.map(z=>`<option value="${z}">${z} mm²</option>`).join('');
+ $('sizeSel').value=c.sizes.includes(+s)?s:'auto';
+ const defMax=c.sizes.includes(+m)?m:(c.sizes.includes(c.cls==='mv'?300:240)?(c.cls==='mv'?300:240):c.sizes[c.sizes.length-1]);
+ $('maxSize').value=defMax;
+ const e=$('earthSel').value;
+ $('earthSel').innerHTML='<option value="auto">Auto (AS/NZS 3000 Table 5.1)</option>'+Object.keys(R20_C2).map(Number).sort((a,b)=>a-b).map(z=>`<option value="${z}">${z} mm²</option>`).join('');
+ if(e)$('earthSel').value=e;
+}
+function fillInst(){
+ const c=CABLES[$('ctype').value], cur=$('inst').value;
+ const ok=Object.keys(INST).filter(k=>colFor(c,k));
+ $('inst').innerHTML=ok.map(k=>`<option value="${k}">${INST[k].name}</option>`).join('');
+ $('inst').value=ok.includes(cur)?cur:'tray_lid';
+}
+function vis(){
+ const ph=$('phase').value, mv=isMV(), lvac=!mv&&ph!=='dc';
+ document.querySelectorAll('.acOnly').forEach(e=>e.classList.toggle('hidden',ph==='dc'));
+ document.querySelectorAll('.lvAcOnly').forEach(e=>e.classList.toggle('hidden',!lvac));
+ const env=INST[$('inst').value]?.env;
+ document.querySelectorAll('.airOnly').forEach(e=>e.classList.toggle('hidden',env!=='air'));
+ document.querySelectorAll('.gndOnly').forEach(e=>e.classList.toggle('hidden',env!=='gnd'));
+ const m=colFor(CABLES[$('ctype').value],$('inst').value);
+ $('coverRow').classList.toggle('hidden',!(m&&m.cover));
+ $('scBox').classList.toggle('hidden',!$('chkSC').checked);
+ $('loopBox').classList.toggle('hidden',!lvac||!$('chkLoop').checked);
+ $('maxSizeRow').classList.toggle('hidden',$('par').value!=='auto');
+}
+
+// ---------- Engine ----------
+function inputs(){
+ const g=id=>parseFloat($(id).value);
+ return{ph:$('phase').value,V:g('volt'),load:g('load'),unit:$('loadUnit').value,pf:Math.min(1,Math.max(0.05,g('pf')||1)),L:g('len'),vdMax:g('vdMax'),
+  ck:$('ctype').value,vdm:$('vdm').value,size:$('sizeSel').value,par:$('par').value,maxSize:+$('maxSize').value,earth:$('earthSel').value,
+  inst:$('inst').value,cover:g('coverF')||1,tAir:g('tAir'),tGnd:g('tGnd'),kGrp:g('kGrp')||1,kSoil:g('kSoil')||1,kOth:g('kOth')||1,
+  In:g('inProt'),sc:$('chkSC').checked,If:g('ifk'),t:g('tcl'),Ief:g('iefk'),loop:$('chkLoop').checked,Ia:g('ia')};
+}
+function designCurrent(p){
+ if(p.unit==='A')return p.load;
+ const kw=p.load*1000;
+ if(p.ph==='3')return p.unit==='kW'?kw/(Math.sqrt(3)*p.V*p.pf):kw/(Math.sqrt(3)*p.V);
+ if(p.ph==='1')return p.unit==='kW'?kw/(p.V*p.pf):kw/p.V;
+ return kw/p.V; // DC
+}
+function evalSize(p,c,i,n,Ib){
+ const map=colFor(c,p.inst), env=INST[p.inst].env;
+ const tab=c.cols[map.col][i];
+ const size=c.sizes[i], tmax=c.tmax||90;
+ const r={size,n,tab,ok:true,fails:[]};
+ if(tab===null||tab===undefined){r.na=true;r.ok=false;r.fails.push('No rating for this size/installation');return r;}
+ if(c.std&&!RAC[size]&&p.ph!=='x'){/* 0.5/0.75 have no R data */}
+ const theta=env==='air'?p.tAir:p.tGnd, tref=env==='air'?40:25;
+ r.kT=theta>=tmax?0:Math.sqrt((tmax-theta)/(tmax-tref));
+ r.kCov=map.cover?p.cover:1;
+ r.kS=env==='gnd'?p.kSoil:1;
+ r.k=r.kT*r.kCov*p.kGrp*r.kS*p.kOth;
+ r.IzRun=tab*r.k; r.Iz=r.IzRun*n;
+ const Irun=Ib/n; r.Irun=Irun;
+ r.okI=r.Iz>=Ib && (!(p.In>0)||r.Iz>=p.In);
+ if(!r.okI){r.ok=false;r.fails.push('Current');}
+ // estimated operating temperature (AS/NZS 3008 method): θo = θa + (θmax − θa)(I/Iz)²
+ const lf=Math.min(1,r.IzRun>0?Irun/r.IzRun:1);
+ r.tOp=Math.min(tmax,theta+(tmax-theta)*lf*lf);
+ const phi=Math.acos(p.pf);
+ // voltage drop
+ if(c.cls==='mv'){
+  r.R=c.rac[i]; r.X=c.x[i];
+  r.Zc=p.vdm==='pf'?(r.R*p.pf+r.X*Math.sin(phi)):Math.sqrt(r.R*r.R+r.X*r.X);
+  r.vd=Math.sqrt(3)*Irun*p.L*r.Zc/1000;
+ } else if(c.std){
+  r.R=RacAt(size,r.tOp);
+  if(r.R===null){r.na=true;r.ok=false;r.fails.push('No R data');return r;}
+  r.X=p.ph==='dc'?0:XC[size][(X_FLAT[p.inst]?3:0)+(c.xcol==='elast'?0:2)];
+  const Z=(p.vdm==='pf'&&p.ph!=='dc')?(r.R*p.pf+r.X*Math.sin(phi)):Math.sqrt(r.R*r.R+r.X*r.X);
+  r.Zc=Z;
+  r.vd=(p.ph==='3'?Math.sqrt(3):2)*Irun*p.L*Z/1000;
+ } else if(p.ph==='dc'){
+  r.vd=2*Irun*p.L*c.r20[size]*(1+0.00393*(r.tOp-20))/1000;
+ } else {
+  r.vd=c.vc[i]*(p.ph==='1'?1.155:1)*Irun*p.L/1000;
+ }
+ r.vdPct=r.vd/p.V*100; r.okV=r.vdPct<=p.vdMax;
+ if(!r.okV){r.ok=false;r.fails.push('Volt drop');}
+ // short circuit — K from AS/NZS 3008 Table 5.1, initial temp = operating temp, final 250 °C (Table 5.2)
+ const k=K250(r.tOp); r.k_sc=k;
+ if(p.sc&&p.If>0&&p.t>0){
+  if(c.cls==='mv'){
+   r.scCap=c.ka[i]/Math.sqrt(p.t)*n; r.okSC=r.scCap>=p.If;
+   if(p.Ief>0){r.scrCap=c.scr[i]/Math.sqrt(p.t)*n; r.okScr=r.scrCap>=p.Ief; if(!r.okScr){r.ok=false;r.fails.push('Screen fault');}}
+  } else {
+   r.Smin=p.If*1000*Math.sqrt(p.t)/k; r.okSC=size*n>=r.Smin;
+  }
+  if(!r.okSC){r.ok=false;r.fails.push('Short circuit');}
+ }
+ // earth (LV AC)
+ if(c.cls==='lv'&&p.ph!=='dc'){
+  r.pe=p.earth==='auto'?earthMin(size):+p.earth;
+  if(p.sc&&p.Ief>0&&p.t>0&&r.pe){r.SpeMin=p.Ief*1000*Math.sqrt(p.t)/k; r.okPE=r.pe*n>=r.SpeMin; if(!r.okPE){r.ok=false;r.fails.push('Earth fault');}}
+  if(p.loop&&p.Ia>0&&r.pe){
+   const Uo=p.ph==='3'?p.V/Math.sqrt(3):p.V, Sph=size*n, Spe=r.pe*n;
+   r.Lmax=0.8*Uo*Sph*Spe/(p.Ia*0.0225*(Sph+Spe)); r.okLoop=p.L<=r.Lmax;
+   if(!r.okLoop){r.ok=false;r.fails.push('Loop impedance');}
+  }
+ }
+ return r;
+}
+function solve(){
+ const p=inputs(), c=CABLES[p.ck]; const Ib=designCurrent(p);
+ const out={p,c,Ib,map:colFor(c,p.inst)};
+ let nList=p.par==='auto'?[1,2,3,4,5,6,8,10,12]:[+p.par];
+ let chosen=null, rows=null;
+ for(const n of nList){
+  const rs=c.sizes.map((z,i)=>evalSize(p,c,i,n,Ib));
+  if(p.size!=='auto'){const i=c.sizes.indexOf(+p.size); rows=rs; chosen=rs[i];
+    if(p.par!=='auto'||rs[i].ok)break; else continue;}
+  const lim=p.par==='auto'?p.maxSize:Infinity;
+  const pick=rs.find(r=>r.ok&&r.size<=lim);
+  rows=rs; if(pick){chosen=pick;break;}
+  if(p.par!=='auto'){chosen=null;break;}
+ }
+ out.rows=rows; out.sel=chosen; return out;
+}
+
+// ---------- Render ----------
+const tag=(ok,t)=>ok===undefined?'<span class="tag w">n/a</span>':`<span class="tag ${ok?'p':'f'}">${t||(ok?'PASS':'FAIL')}</span>`;
+function render(){
+ vis();
+ const o=solve(), p=o.p, c=o.c, s=o.sel;
+ const unitLbl=p.ph==='dc'?'V DC':(p.ph==='1'?'V 1φ':'V 3φ');
+ let st='';
+ if(s&&s.ok){
+  st+=`<div class="stat"><div class="k">Selected active</div><div class="v">${s.n>1?s.n+' × ':''}${s.size} mm²</div><div class="u">${c.cls==='mv'?'11 kV XLPE':'Cu X-90'} · ${s.n>1?'parallel runs':'single run'}</div></div>`;
+ } else {
+  st+=`<div class="stat fail"><div class="k">Selected active</div><div class="v">${s?((s.n>1?s.n+' × ':'')+s.size+' mm²'):'No size passes'}</div><div class="u">${s?'Fails: '+s.fails.join(', '):'Increase runs, size limit or VD limit'}</div></div>`;
+ }
+ st+=`<div class="stat grey"><div class="k">Design current I<sub>b</sub></div><div class="v">${fmt(o.Ib,1)}</div><div class="u">A total${s&&s.n>1?' · '+fmt(o.Ib/s.n,1)+' A per run':''}</div></div>`;
+ if(s&&!s.na){
+  st+=`<div class="stat grey"><div class="k">Rating I<sub>z</sub></div><div class="v">${fmt(s.Iz,0)}</div><div class="u">A (k = ${fmt(s.k,3)})</div></div>`;
+  st+=`<div class="stat grey"><div class="k">Voltage drop</div><div class="v">${fmt(s.vdPct,2)} %</div><div class="u">${fmt(s.vd,p.V>1000?0:2)} V · ${fmt(p.V-s.vd,p.V>1000?0:2)} V at load</div></div>`;
+  if(s.pe)st+=`<div class="stat grey"><div class="k">Earth conductor</div><div class="v">${s.n>1?s.n+' × ':''}${s.pe} mm²</div><div class="u">Cu</div></div>`;
+ }
+ $('stats').innerHTML=st;
+ // warnings
+ let w=[];
+ if(o.map&&o.map.cover)w.push(`The rating uses the ${o.map.desc} (${p.cover}). This cable has no enclosed rating column, so confirm the factor against AS/NZS 3008.`);
+ if(s&&s.n>1&&p.kGrp>=1)w.push('There are parallel runs but the grouping factor is 1.00. Enter the AS/NZS 3008 grouping factor for the number of circuits and the tray arrangement.');
+ if(p.ph==='dc'&&c.cls==='lv'&&p.ck!=='lv_mc')w.push('This DC circuit uses single-core 3-phase ratings, which is conservative for 2 loaded conductors.');
+ if(c.cls==='mv')w.push('11 kV ratings are assumed to be at the AS/NZS 3008.1.2 reference conditions (40 °C air, 25 °C ground). Confirm these against the Prysmian guide or AS/NZS 3008.1.2.');
+ if(c.cls==='lv'&&p.ph!=='dc'&&p.earth==='auto')w.push('The earth size is the AS/NZS 3000 Table 5.1 minimum. For multicore cables, confirm the integral earth core of the cable chosen meets it.');
+ if(p.In>0&&o.Ib>p.In)w.push(`The design current (${fmt(o.Ib,1)} A) exceeds the device rating I<sub>n</sub> (${p.In} A).`);
+ if(p.V>1000&&p.V<=1100)w.push('Check the cable voltage grade.');
+ $('warnings').innerHTML=w.map(x=>`<div class="note">${x}</div>`).join('');
+ // checks
+ let ch='<thead><tr><th>Check</th><th>Requirement</th><th class="n">Value</th><th>Result</th></tr></thead><tbody>';
+ if(s&&!s.na){
+  ch+=`<tr><td>Current rating</td><td>I<sub>z</sub> ≥ I<sub>b</sub>${p.In>0?' and I<sub>z</sub> ≥ I<sub>n</sub> ('+p.In+' A)':''}</td><td class="n">${fmt(s.Iz,0)} A vs ${fmt(Math.max(o.Ib,p.In||0),1)} A</td><td>${tag(s.okI)}</td></tr>`;
+  ch+=`<tr><td>Voltage drop</td><td>≤ ${p.vdMax} % of ${p.V} V</td><td class="n">${fmt(s.vdPct,2)} %</td><td>${tag(s.okV)}</td></tr>`;
+  if(p.sc&&p.If>0){
+   if(c.cls==='mv'){ch+=`<tr><td>Conductor short circuit</td><td>${p.If} kA for ${p.t} s</td><td class="n">${fmt(s.scCap,1)} kA withstand</td><td>${tag(s.okSC)}</td></tr>`;
+     if(s.scrCap!==undefined)ch+=`<tr><td>Screen earth fault</td><td>${p.Ief} kA for ${p.t} s</td><td class="n">${fmt(s.scrCap,1)} kA withstand</td><td>${tag(s.okScr)}</td></tr>`;}
+   else ch+=`<tr><td>Active short circuit</td><td>S ≥ I·√t/k = ${fmt(s.Smin,1)} mm² (k = ${fmt(s.k_sc,0)})</td><td class="n">${s.n>1?s.n+' × ':''}${s.size} mm²</td><td>${tag(s.okSC)}</td></tr>`;
+  }
+  if(s.pe&&s.SpeMin!==undefined)ch+=`<tr><td>Earth conductor withstand</td><td>S<sub>pe</sub> ≥ ${fmt(s.SpeMin,1)} mm²</td><td class="n">${s.n>1?s.n+' × ':''}${s.pe} mm²</td><td>${tag(s.okPE)}</td></tr>`;
+  if(s.Lmax!==undefined)ch+=`<tr><td>Earth fault loop</td><td>L ≤ L<sub>max</sub> at I<sub>a</sub> = ${p.Ia} A</td><td class="n">${fmt(p.L,0)} m vs ${fmt(s.Lmax,0)} m</td><td>${tag(s.okLoop)}</td></tr>`;
+  ch+=`<tr><td>Est. operating temp.</td><td>θ<sub>o</sub> = θ<sub>a</sub> + (θ<sub>max</sub> − θ<sub>a</sub>)(I/I<sub>z</sub>)²</td><td class="n">${fmt(s.tOp,1)} °C</td><td>${tag(undefined)}</td></tr>`;
+  if(s.R!==undefined)ch+=`<tr><td>Impedance used</td><td>${c.std?'R at θ<sub>o</sub> (Table 4.5(A)), X '+(X_FLAT[p.inst]?'flat':'trefoil')+' (Table 4.1(A))':'R<sub>ac,90</sub>, X (manufacturer)'}</td><td class="n">R ${fmt(s.R,4)} · X ${fmt(s.X,4)} Ω/km</td><td>${tag(undefined)}</td></tr>`;
+  if(c.cls==='lv')ch+=`<tr><td>K constant</td><td>Table 5.1, initial ${fmt(s.tOp,1)} °C → final 250 °C</td><td class="n">${fmt(s.k_sc,1)}</td><td>${tag(undefined)}</td></tr>`;
+ } else ch+='<tr><td colspan="4">No result</td></tr>';
+ $('checks').innerHTML=ch+'</tbody>';
+ // sizes table
+ const R=o.rows||[]; const hasSC=p.sc&&p.If>0, hasL=R.some(r=>r.Lmax!==undefined);
+ let t=`<thead><tr><th class="n">Size mm²</th><th class="n">I<sub>tab</sub> A</th><th class="n">I<sub>z</sub> A</th><th class="n">V<sub>d</sub> %</th>${hasSC?'<th>SC</th>':''}${R.some(r=>r.pe)?'<th class="n">Earth mm²</th>':''}${hasL?'<th class="n">L<sub>max</sub> m</th>':''}<th>Result</th></tr></thead><tbody>`;
+ R.forEach(r=>{
+  const sel=s&&r.size===s.size&&r.n===s.n;
+  t+=`<tr class="${sel?'sel':''}"><td class="n">${r.n>1?r.n+' × ':''}${r.size}</td><td class="n">${r.na?'—':r.tab}</td><td class="n">${r.na?'—':fmt(r.Iz,0)}</td><td class="n">${r.na?'—':fmt(r.vdPct,2)}</td>${hasSC?`<td>${r.na?'':tag(r.okSC&&(r.okScr!==false))}</td>`:''}${R.some(x=>x.pe)?`<td class="n">${r.pe||'—'}</td>`:''}${hasL?`<td class="n">${r.Lmax!==undefined?fmt(r.Lmax,0):'—'}</td>`:''}<td>${r.ok?tag(true):`<span class="tag f">${r.fails.join(', ')}</span>`}</td></tr>`;
+ });
+ $('sizes').innerHTML=t+'</tbody>';
+ const env=INST[p.inst].env;
+ $('basis').innerHTML=`<ul class="tight"><li><b>Cable:</b> ${c.name}</li><li><b>Data source:</b> ${c.src}</li><li><b>Installation:</b> ${INST[p.inst].name}, using the ${o.map.desc}</li>
+ <li><b>Derating:</b> k<sub>temp</sub> ${s&&!s.na?fmt(s.kT,3):'—'} (${env==='air'?p.tAir+' °C air':p.tGnd+' °C ground'}) × grouping ${p.kGrp} ${env==='gnd'?'× soil/depth '+p.kSoil:''} × other ${p.kOth}${o.map.cover?' × covered tray '+p.cover:''}</li>
+ <li><b>Voltage drop basis:</b> ${c.cls==='mv'?'R<sub>ac</sub> at 90 °C and X ('+(p.vdm==='pf'?'R·cosφ + X·sinφ, pf '+p.pf:'Z<sub>c</sub>')+')':c.std?'AS/NZS 3008 R at the operating temperature and X ('+(p.ph==='dc'?'DC loop':p.vdm==='pf'?'R·cosφ + X·sinφ, pf '+p.pf:'Z<sub>c</sub>')+')':p.ph==='dc'?'DC loop resistance at the estimated conductor temperature':'tabled 3-phase V<sub>c</sub> at 90 °C'+(p.ph==='1'?' × 1.155 (1-phase)':'')}</li></ul>`;
+ o.text=report(o); window._last=o;
+ try{localStorage.setItem('ssCable',JSON.stringify(saveState()))}catch(e){}
+}
+function report(o){
+ const p=o.p,c=o.c,s=o.sel; const L=[];
+ L.push('SILVERSTONE: CABLE SIZE CALCULATION');
+ L.push('Date: '+new Date().toLocaleDateString('en-AU'));
+ L.push('');
+ L.push(`Circuit: ${p.ph==='dc'?'DC':p.ph+'-phase AC'} ${p.V} V; load ${p.load} ${p.unit}${p.ph!=='dc'?' @ pf '+p.pf:''}; length ${p.L} m; VD limit ${p.vdMax} %`);
+ L.push(`Cable: ${c.name}`);
+ L.push(`Installation: ${INST[p.inst].name} (${o.map.desc})`);
+ L.push(`Derating: air ${p.tAir} °C / ground ${p.tGnd} °C; grouping ${p.kGrp}; soil/depth ${p.kSoil}; other ${p.kOth}${o.map.cover?'; covered tray '+p.cover:''}`);
+ if(p.In>0)L.push(`Protective device In: ${p.In} A`);
+ if(p.sc)L.push(`Fault: ${p.If} kA, earth fault ${p.Ief} kA, clearing ${p.t} s`);
+ L.push('');
+ L.push(`Design current Ib = ${fmt(o.Ib,1)} A`);
+ if(s&&!s.na){
+  L.push(`SELECTED: ${s.n>1?s.n+' x ':''}${s.size} mm2 Cu${s.pe?' + '+(s.n>1?s.n+' x ':'')+s.pe+' mm2 earth':''}  [${s.ok?'ALL CHECKS PASS':'FAILS: '+s.fails.join(', ')}]`);
+  L.push(`  Iz = ${fmt(s.Iz,0)} A (Itab ${s.tab} A x k ${fmt(s.k,3)} x ${s.n} run${s.n>1?'s':''})`);
+  L.push(`  Voltage drop = ${fmt(s.vd,2)} V = ${fmt(s.vdPct,2)} %`);
+  if(s.Smin!==undefined)L.push(`  Short circuit: Smin = ${fmt(s.Smin,1)} mm2 (k=${fmt(s.k_sc,0)}) -> ${s.okSC?'PASS':'FAIL'}`);
+  if(s.scCap!==undefined)L.push(`  Conductor SC withstand = ${fmt(s.scCap,1)} kA for ${p.t} s -> ${s.okSC?'PASS':'FAIL'}`);
+  if(s.scrCap!==undefined)L.push(`  Screen EF withstand = ${fmt(s.scrCap,1)} kA for ${p.t} s -> ${s.okScr?'PASS':'FAIL'}`);
+  if(s.SpeMin!==undefined)L.push(`  Earth conductor: Spe,min = ${fmt(s.SpeMin,1)} mm2 -> ${s.okPE?'PASS':'FAIL'}`);
+  if(s.Lmax!==undefined)L.push(`  Loop impedance: Lmax = ${fmt(s.Lmax,0)} m at Ia ${p.Ia} A -> ${s.okLoop?'PASS':'FAIL'}`);
+ } else L.push('No size satisfies all checks.');
+ L.push('');
+ L.push('Data source: '+c.src);
+ L.push('Engineering aid only. Verify against AS/NZS 3008.1.1/1.2 and AS/NZS 3000 before issue.');
+ return L.join('\n');
+}
+function dataTables(){
+ let h='';
+ for(const [k,c] of Object.entries(CABLES)){
+  const cols=Object.keys(c.cols);
+  h+=`<h3>${c.name}</h3><p class="muted">${c.src}</p><div class="scroll"><table><thead><tr><th class="n">mm²</th>${cols.map(x=>`<th class="n">${({spaced:'Spaced',spacedSurf:'Spaced from surface',touching:'Touching',sun:'Sun',enclosed:'Enclosed',buried:'Buried',duct:'UG conduit (one)',duct3:'UG conduits (separate)',air:'Free air'})[x]} A</th>`).join('')}${c.vc?'<th class="n">V<sub>c</sub> mV/A·m</th>':''}${c.rac?'<th class="n">R<sub>ac90</sub> Ω/km</th><th class="n">X Ω/km</th><th class="n">Cond. kA 1 s</th><th class="n">Screen kA 1 s</th>':''}</tr></thead><tbody>`;
+  c.sizes.forEach((z,i)=>{h+=`<tr><td class="n">${z}</td>${cols.map(x=>`<td class="n">${c.cols[x][i]??'—'}</td>`).join('')}${c.vc?`<td class="n">${c.vc[i]}</td>`:''}${c.rac?`<td class="n">${c.rac[i]}</td><td class="n">${c.x[i]}</td><td class="n">${c.ka[i]}</td><td class="n">${c.scr[i]}</td>`:''}</tr>`;});
+  h+='</tbody></table></div>';
+ }
+ h+=`<h3>AS/NZS 3008.1.1 Table 4.5(A): a.c. resistance, single-core Cu (Ω/km)</h3><div class="scroll"><table><thead><tr><th class="n">mm²</th>${RT.map(t=>`<th class="n">${t} °C</th>`).join('')}</tr></thead><tbody>${Object.keys(RAC).map(Number).sort((a,b)=>a-b).map(z=>`<tr><td class="n">${z}</td>${RAC[z].map(v=>`<td class="n">${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+ h+=`<h3>AS/NZS 3008.1.1 Table 4.1(A): reactance, single-core (Ω/km)</h3><div class="scroll"><table><thead><tr><th class="n">mm²</th><th class="n">Trefoil elastomer</th><th class="n">Trefoil PVC</th><th class="n">Trefoil XLPE</th><th class="n">Flat elastomer</th><th class="n">Flat PVC</th><th class="n">Flat XLPE</th></tr></thead><tbody>${Object.keys(XC).map(Number).sort((a,b)=>a-b).map(z=>`<tr><td class="n">${z}</td>${XC[z].map(v=>`<td class="n">${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+ h+=`<h3>AS/NZS 3008.1.1 Table 5.1: K, copper, final 250 °C (X-90 and cross-linked elastomers per Table 5.2)</h3><div class="scroll"><table><thead><tr><th>Initial °C</th>${KT_I.map(t=>`<th class="n">${t}</th>`).join('')}</tr></thead><tbody><tr><td>K</td>${KT_250.map(v=>`<td class="n">${v}</td>`).join('')}</tr></tbody></table></div>`;
+ h+=`<h3>AS/NZS 3000 Table 5.1: minimum Cu earthing conductor (400–630 mm² actives ≥ 120 mm²; above 630 mm² ≥ 25 % of active)</h3><div class="scroll"><table><thead><tr><th>Active mm²</th>${Object.keys(EARTH_T51).map(Number).sort((a,b)=>a-b).map(a=>`<th class="n">${a}</th>`).join('')}</tr></thead><tbody><tr><td>Earth mm²</td>${Object.keys(EARTH_T51).map(Number).sort((a,b)=>a-b).map(a=>`<td class="n">${EARTH_T51[a]}</td>`).join('')}</tr></tbody></table></div>`;
+ $('dataTables').innerHTML=h;
+}
+const FIELDS=['preset','phase','volt','load','loadUnit','pf','vdm','len','vdMax','ctype','sizeSel','par','maxSize','earthSel','inst','coverF','tAir','tGnd','kGrp','kSoil','kOth','inProt','ifk','tcl','iefk','ia'];
+const CHECKS=['chkSC','chkLoop'];
+function saveState(){const o={};FIELDS.forEach(f=>o[f]=$(f).value);CHECKS.forEach(f=>o[f]=$(f).checked);return o;}
+function loadState(o){
+ ['preset','phase','volt'].forEach(f=>{if(o[f]!==undefined)$(f).value=o[f]});
+ fillCableTypes(); if(o.ctype&&[...$('ctype').options].some(x=>x.value===o.ctype))$('ctype').value=o.ctype;
+ fillSizes(); fillInst();
+ FIELDS.forEach(f=>{if(o[f]!==undefined&&[...( $(f).options||[])].length?[...$(f).options].some(x=>x.value===o[f]):true){if(o[f]!==undefined)$(f).value=o[f]}});
+ CHECKS.forEach(f=>{if(o[f]!==undefined)$(f).checked=o[f]});
+}
+function applyPreset(){
+ const pr=PRESETS[$('preset').value]; if(!pr)return;
+ $('phase').value=pr[0]; $('volt').value=pr[1];
+ if(pr[1]===24){$('load').value=10;$('loadUnit').value='A';$('vdMax').value=5;$('len').value=50;$('chkSC').checked=false;}
+ if(pr[1]===11000){$('load').value=1000;$('loadUnit').value='kVA';$('vdMax').value=3;$('ifk').value=12.5;$('iefk').value=3;$('tcl').value=0.5;$('chkSC').checked=true;}
+ fillCableTypes(); fillSizes(); fillInst();
+}
+function init(){
+ $('preset').addEventListener('change',()=>{applyPreset();render();});
+ $('volt').addEventListener('change',()=>{$('preset').value='custom';fillCableTypes();fillSizes();fillInst();render();});
+ $('phase').addEventListener('change',()=>{$('preset').value='custom';render();});
+ $('ctype').addEventListener('change',()=>{fillSizes();fillInst();render();});
+ document.querySelectorAll('#tab-calc input,#tab-calc select').forEach(e=>{if(!['preset','volt','phase','ctype'].includes(e.id))e.addEventListener('input',render);});
+ $('reset').addEventListener('click',()=>{try{localStorage.removeItem('ssCable')}catch(e){} location.reload();});
+ $('copyRep').addEventListener('click',async()=>{
+  const txt=window._last?.text||'';
+  try{await navigator.clipboard.writeText(txt);$('copyMsg').textContent='Calculation report copied to the clipboard.';$('repBox').classList.add('hidden');}
+  catch(e){$('repBox').value=txt;$('repBox').classList.remove('hidden');$('repBox').select();$('copyMsg').textContent="Clipboard access is blocked here. Select the text below and copy it.";}
+ });
+ document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  ['calc','data','method'].forEach(t=>$('tab-'+t).classList.toggle('hidden',t!==b.dataset.tab));
+ }));
+ fillCableTypes(); fillSizes(); fillInst();
+ let st=null; try{st=JSON.parse(localStorage.getItem('ssCable'))}catch(e){}
+ if(st)loadState(st);
+ dataTables(); render();
+}
+init();
+</script>
+</body>
+</html>
