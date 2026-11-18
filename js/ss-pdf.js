@@ -81,7 +81,7 @@ window.ssPdfReport=function(o,meta){
   const cableTxt=s?`${runs}${s.size} mm² ${mat}${s.pe?'  +  '+runs+s.pe+' mm² Cu earth':''}`:'No size satisfies all checks';
   doc.text(cableTxt,M+5,y+14);
   doc.setFont('Body','normal'); doc.setFontSize(8.5);
-  doc.text(t(c.name),M+5,y+20);
+  doc.text(t((c.cls==='lv'?INS[p.ins].l+'  |  ':'')+c.name),M+5,y+20);
   doc.setFont('Michroma','normal'); doc.setFontSize(8);
   doc.text(ok?'ALL CHECKS PASS':'CHECKS FAIL',W-M-5,y+6,{align:'right'});
   if(s&&!s.na){
@@ -101,6 +101,7 @@ window.ssPdfReport=function(o,meta){
     ['Design current Ib',fmt(o.Ib,1)+' A','Route length (one way)',p.L+' m'],
     ['Max. voltage drop',p.vdMax+' %','Voltage drop method',c.cls==='mv'||c.std?(p.vdm==='pf'?'R cos phi + X sin phi':'Impedance Zc'):'Tabled Vc (mV/A.m)'],
     ['Conductor',c.mat==='al'?'Aluminium':'Copper','Parallel runs',p.par==='auto'?'Auto (max '+p.maxSize+' mm² per run)':p.par],
+    c.cls==='lv'?['Insulation',INS[p.ins].l+' ('+INS[p.ins].fam+', '+INS[p.ins].tmax+' °C)','','']:null,
     ['Cable type',t(c.name),'Installation',t(INST[p.inst].name)],
     [env==='air'?'Ambient air temp.':'Ground temp.',(env==='air'?p.tAir:p.tGnd)+' °C','Grouping factor',String(p.kGrp)],
     env==='gnd'?['Soil resistivity factor',String(p.kSoil),'Depth of laying factor',String(p.kDepth)]:null,
