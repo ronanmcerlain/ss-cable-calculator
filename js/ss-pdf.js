@@ -109,7 +109,7 @@ window.ssPdfReport=function(o,meta){
     ['Protective device',DEV[p.dev].l,'Let-through I²t',p.i2t>0?p.i2t+' A²s':'Not used (If²·t)'],
     o.map.cover?['Protective device In',p.In>0?p.In+' A':'Not set','','']:null,
     p.sc?['Prospective fault current',p.If+' kA','Clearing time',p.t+' s']:null,
-    p.sc?['Earth fault current',p.Ief+' kA',c.cls==='lv'&&p.ph!=='dc'&&p.loop?'Device trip current Ia':'',c.cls==='lv'&&p.ph!=='dc'&&p.loop?(p.Ia>0?fmt(p.Ia,0)+' A':'Not set'):'']:null
+    p.sc?['Earth fault (supply end)',p.Ief+' kA'+(p.iefManual?'':' (= If)'),c.cls==='lv'&&p.ph!=='dc'&&p.loop?'Device trip current Ia':'',c.cls==='lv'&&p.ph!=='dc'&&p.loop?(p.Ia>0?fmt(p.Ia,0)+' A':'Not set'):'']:null
   ].filter(Boolean);
   table({body:inRows,columnStyles:{0:{fontStyle:'bold',cellWidth:38},2:{fontStyle:'bold',cellWidth:38}}});
 
