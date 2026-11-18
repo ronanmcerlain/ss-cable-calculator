@@ -11,6 +11,7 @@ Silverstone cable sizing tool for typical power station circuits: 415 V and 1000
 - Earth conductor sizing (AS/NZS 3000 Table 5.1) and earth fault withstand
 - Earth fault loop impedance (AS/NZS 3000 Appendix B simplified method)
 - Parallel runs
+- Silverstone-style PDF calculation report (title block, inputs, checks, size comparison, sign-off)
 
 ## Data sources
 - **LV single-core, Cu and Al:** AS/NZS 3008.1.1 Tables 3.13, 3.14, 4.1(A), 4.5(A), 5.1 and 5.2. Al resistance is from IEC 60228 until Table 4.5(B) is loaded.
@@ -21,4 +22,8 @@ The **Cable data** tab in the tool lists every value it uses.
 
 Engineering aid only. Verify results against AS/NZS 3008.1.1/1.2 and AS/NZS 3000 before issue.
 
-Single self-contained `index.html` with no build step.
+## Files
+`index.html` is the calculator. The `js/` folder holds the PDF report: jsPDF, jsPDF-AutoTable, and the SS fonts and logo. There's no build step.
+
+## Versions
+Versions use major.minor.patch. The history is in the **Versions** tab and in the git tags.
