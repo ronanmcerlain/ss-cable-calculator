@@ -116,7 +116,7 @@ window.ssPdfReport=function(o,meta){
   // ---- Checks ----
   const ch=cellsOf('#checks');
   heading('02','Checks',Math.min(ch.length,6)*6.5);
-  if(ch.length>1) table({head:[ch[0]],body:ch.slice(1),didParseCell:d=>{ if(d.section==='body'&&d.column.index===3){ if(d.cell.raw==='PASS'){d.cell.styles.textColor=PASS;d.cell.styles.fontStyle='bold';} else if(d.cell.raw==='FAIL'){d.cell.styles.textColor=FAIL;d.cell.styles.fontStyle='bold';} else if(d.cell.raw==='n/a'){d.cell.raw='';d.cell.text=['—'];} } },
+  if(ch.length>1) table({head:[ch[0]],body:ch.slice(1),didParseCell:d=>{ if(d.section==='body'&&d.column.index===3){ if(d.cell.raw==='PASS'){d.cell.styles.textColor=PASS;d.cell.styles.fontStyle='bold';} else if(d.cell.raw==='FAIL'){d.cell.styles.textColor=FAIL;d.cell.styles.fontStyle='bold';} else if(d.cell.raw==='n/a'){d.cell.raw='';d.cell.text=['—'];} else if(d.cell.raw==='DEEMED'){d.cell.styles.textColor=[0,61,165];d.cell.styles.fontStyle='bold';} } },
     columnStyles:{2:{halign:'right'},3:{cellWidth:16}}});
 
   // ---- Nearby sizes ----
@@ -126,7 +126,7 @@ window.ssPdfReport=function(o,meta){
   if(sz.length>1) table({head:[sz[0]],body:sz.slice(1),
     didParseCell:d=>{ if(d.section!=='body')return; if(d.row.index===selIdx){d.cell.styles.fillColor=BLUE20;d.cell.styles.fontStyle='bold';}
       const last=d.column.index===d.table.columns.length-1;
-      if(d.cell.raw==='PASS'){d.cell.styles.textColor=PASS;} else if(d.cell.raw==='FAIL'||(last&&d.cell.raw)){d.cell.styles.textColor=FAIL;} },
+      if(d.cell.raw==='PASS'){d.cell.styles.textColor=PASS;} else if(d.cell.raw==='DEEMED'){d.cell.styles.textColor=BLUE;} else if(d.cell.raw==='FAIL'||(last&&d.cell.raw)){d.cell.styles.textColor=FAIL;} },
     columnStyles:{0:{halign:'right'},1:{halign:'right'},2:{halign:'right'},3:{halign:'right'}}});
 
   // ---- Basis & notes ----
