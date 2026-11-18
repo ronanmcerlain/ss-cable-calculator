@@ -106,9 +106,10 @@ window.ssPdfReport=function(o,meta){
     [env==='air'?'Ambient air temp.':'Ground temp.',(env==='air'?p.tAir:p.tGnd)+' °C','Grouping factor',String(p.kGrp)],
     env==='gnd'?['Soil resistivity factor',String(p.kSoil),'Depth of laying factor',String(p.kDepth)]:null,
     ['Other factor',String(p.kOth),o.map.cover?'Covered-tray factor':'Protective device In',o.map.cover?String(p.cover):(p.In>0?p.In+' A':'Not set')],
+    ['Protective device',DEV[p.dev].l,'Let-through I²t',p.i2t>0?p.i2t+' A²s':'Not used (If²·t)'],
     o.map.cover?['Protective device In',p.In>0?p.In+' A':'Not set','','']:null,
     p.sc?['Prospective fault current',p.If+' kA','Clearing time',p.t+' s']:null,
-    p.sc?['Earth fault current',p.Ief+' kA',c.cls==='lv'&&p.ph!=='dc'&&p.loop?'Device trip current Ia':'',c.cls==='lv'&&p.ph!=='dc'&&p.loop?p.Ia+' A':'']:null
+    p.sc?['Earth fault current',p.Ief+' kA',c.cls==='lv'&&p.ph!=='dc'&&p.loop?'Device trip current Ia':'',c.cls==='lv'&&p.ph!=='dc'&&p.loop?(p.Ia>0?fmt(p.Ia,0)+' A':'Not set'):'']:null
   ].filter(Boolean);
   table({body:inRows,columnStyles:{0:{fontStyle:'bold',cellWidth:38},2:{fontStyle:'bold',cellWidth:38}}});
 
